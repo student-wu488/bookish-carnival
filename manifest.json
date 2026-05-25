@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "净网守护 - 抖音评论过滤",
+  "version": "1.0.0",
+  "description": "实时过滤抖音评论中的违规内容",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.douyin.com/*",
+    "http://localhost:3000/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.douyin.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
