@@ -1,301 +1,118 @@
-# Acorn
+# 净网守护 - 抖音评论过滤浏览器插件
 
-A tiny, fast JavaScript parser written in JavaScript.
+## 📦 安装步骤
 
-## Community
+### 1. 生成图标文件
 
-Acorn is open source software released under an
-[MIT license](https://github.com/acornjs/acorn/blob/master/acorn/LICENSE).
+打开浏览器，访问 `douyin-comment-filter/generate-icons.html` 文件，浏览器会自动下载三个图标文件：
+- icon16.png
+- icon48.png
+- icon128.png
 
-You are welcome to
-[report bugs](https://github.com/acornjs/acorn/issues) or create pull
-requests on [github](https://github.com/acornjs/acorn).
+或者手动创建图标：
+1. 打开 `generate-icons.html`
+2. 右键点击每个图标
+3. 选择"图片另存为"
+4. 保存到 `icons` 文件夹
 
-## Installation
+### 2. 加载插件到 Chrome/Edge
 
-The easiest way to install acorn is from [`npm`](https://www.npmjs.com/):
+#### Chrome 浏览器：
+1. 打开 Chrome 浏览器
+2. 访问 `chrome://extensions/`
+3. 打开右上角的"开发者模式"
+4. 点击"加载已解压的扩展程序"
+5. 选择 `douyin-comment-filter` 文件夹
+6. 插件安装成功！
 
-```sh
-npm install acorn
+#### Edge 浏览器：
+1. 打开 Edge 浏览器
+2. 访问 `edge://extensions/`
+3. 打开左下角的"开发人员模式"
+4. 点击"加载未打包的扩展"
+5. 选择 `douyin-comment-filter` 文件夹
+6. 插件安装成功！
+
+### 3. 启动后端服务
+
+确保后端服务器正在运行：
+
+```bash
+cd c:\Users\huawei\Desktop\tace\product-1
+npm run dev
 ```
 
-Alternately, you can download the source and build acorn yourself:
+后端服务应该运行在 `http://localhost:3000`
 
-```sh
-git clone https://github.com/acornjs/acorn.git
-cd acorn
-npm install
-```
-## Importing acorn
+### 4. 使用插件
 
-ESM as well as CommonJS is supported for all 3: `acorn`, `acorn-walk` and `acorn-loose`.
+1. 访问网页版抖音：https://www.douyin.com
+2. 打开任意视频，查看评论区
+3. 插件会自动监控评论并进行审核
+4. 违规评论会被标记红色边框和"⚠️ 已过滤"标签
+5. 点击浏览器右上角的插件图标，可以查看统计数据
 
-ESM example for `acorn`:
+## 🔧 功能说明
 
-```js
-import * as acorn from "acorn"
-```
+### 自动监控
+- 实时监控抖音评论区的评论内容
+- 自动检测新评论并进行审核
+- 使用 MutationObserver 监听 DOM 变化
 
-CommonJS example for `acorn`:
+### 内容审核
+- 调用后端 API 进行内容审核
+- 识别违规内容（暴力、色情、垃圾广告等）
+- 标记违规评论
 
-```js
-let acorn = require("acorn")
-```
+### 统计面板
+- 总评论数统计
+- 已过滤评论数统计
+- 已通过评论数统计
+- 待审核评论数统计
+- 后端服务状态显示
 
-ESM is preferred, as it allows better editor auto-completions by offering TypeScript support.
-For this reason, following examples will use ESM imports.
+### 视觉标记
+- 违规评论红色高亮
+- 添加"⚠️ 已过滤"标签
+- 不删除评论，仅做标记
 
-## Interface
+## 🎨 自定义配置
 
-**parse**`(input, options)` is the main interface to the library. The
-`input` parameter is a string, `options` must be an object setting
-some of the options listed below. The return value will be an abstract
-syntax tree object as specified by the [ESTree
-spec](https://github.com/estree/estree).
+编辑 `content.js` 文件中的 `CONFIG` 对象：
 
 ```javascript
-import * as acorn from "acorn"
-console.log(acorn.parse("1 + 1", {ecmaVersion: 2020}))
+const CONFIG = {
+  API_URL: 'http://localhost:3000/api/moderation/check',
+  CHECK_INTERVAL: 1000, // 检查间隔（毫秒）
+  MAX_CHECKED: 100, // 最多检查的评论数
+};
 ```
 
-When encountering a syntax error, the parser will raise a
-`SyntaxError` object with a meaningful message. The error object will
-have a `pos` property that indicates the string offset at which the
-error occurred, and a `loc` object that contains a `{line, column}`
-object referring to that same position.
+## 🐛 故障排除
 
-Options are provided by in a second argument, which should be an
-object containing any of these fields (only `ecmaVersion` is
-required):
+### 插件不工作
+1. 检查后端服务是否运行在 3000 端口
+2. 刷新抖音页面
+3. 打开浏览器控制台（F12）查看错误日志
 
-- **ecmaVersion**: Indicates the ECMAScript version to parse. Can be a
-  number, either in year (`2022`) or plain version number (`6`) form,
-  or `"latest"` (the latest the library supports). This influences
-  support for strict mode, the set of reserved words, and support for
-  new syntax features.
+### 无法连接后端
+1. 确保运行 `npm run dev` 启动后端
+2. 检查防火墙设置
+3. 确认 API 地址配置正确
 
-  **NOTE**: Only 'stage 4' (finalized) ECMAScript features are being
-  implemented by Acorn. Other proposed new features must be
-  implemented through plugins.
+### 图标显示异常
+1. 确保 `icons` 文件夹中有三个 PNG 图标文件
+2. 重新生成图标文件
+3. 重新加载插件
 
-- **sourceType**: Indicate the mode the code should be parsed in. Can be
-  either `"script"`, `"module"` or `"commonjs"`. This influences global strict mode
-  and parsing of `import` and `export` declarations.
+## 📝 技术栈
 
-  **NOTE**: If set to `"module"`, then static `import` / `export` syntax
-  will be valid, even if `ecmaVersion` is less than 6. If set to `"commonjs"`,
-  it is the same as `"script"` except that the top-level scope behaves like a function.
+- **Manifest V3**: 最新的浏览器扩展标准
+- **Service Worker**: 后台服务
+- **Content Script**: 页面脚本
+- **MutationObserver**: DOM 变化监听
+- **Chrome Storage**: 本地数据存储
 
-- **onInsertedSemicolon**: If given a callback, that callback will be
-  called whenever a missing semicolon is inserted by the parser. The
-  callback will be given the character offset of the point where the
-  semicolon is inserted as argument, and if `locations` is on, also a
-  `{line, column}` object representing this position.
+## 📞 支持
 
-- **onTrailingComma**: Like `onInsertedSemicolon`, but for trailing
-  commas.
-
-- **allowReserved**: If `false`, using a reserved word will generate
-  an error. Defaults to `true` for `ecmaVersion` 3, `false` for higher
-  versions. When given the value `"never"`, reserved words and
-  keywords can also not be used as property names (as in Internet
-  Explorer's old parser).
-
-- **allowReturnOutsideFunction**: By default, a return statement at
-  the top level raises an error. Set this to `true` to accept such
-  code.
-
-- **allowImportExportEverywhere**: By default, `import` and `export`
-  declarations can only appear at a program's top level. Setting this
-  option to `true` allows them anywhere where a statement is allowed,
-  and also allows `import.meta` expressions to appear in scripts
-  (when `sourceType` is not `"module"`).
-
-- **allowAwaitOutsideFunction**: If `false`, `await` expressions can
-  only appear inside `async` functions. Defaults to `true` in modules
-  for `ecmaVersion` 2022 and later, `false` for lower versions.
-  Setting this option to `true` allows to have top-level `await`
-  expressions. They are still not allowed in non-`async` functions,
-  though. Setting this option to `true` is not allowed when `sourceType: "commonjs"`.
-
-- **allowSuperOutsideMethod**: By default, `super` outside a method
-  raises an error. Set this to `true` to accept such code.
-
-- **allowHashBang**: When this is enabled, if the code starts with the
-  characters `#!` (as in a shellscript), the first line will be
-  treated as a comment. Defaults to true when `ecmaVersion` >= 2023.
-
-- **checkPrivateFields**: By default, the parser will verify that
-  private properties are only used in places where they are valid and
-  have been declared. Set this to false to turn such checks off.
-
-- **locations**: When `true`, each node has a `loc` object attached
-  with `start` and `end` subobjects, each of which contains the
-  one-based line and zero-based column numbers in `{line, column}`
-  form. Default is `false`.
-
-- **onToken**: If a function is passed for this option, each found
-  token will be passed in same format as tokens returned from
-  `tokenizer().getToken()`.
-
-  If array is passed, each found token is pushed to it.
-
-  Note that you are not allowed to call the parser from the
-  callback—that will corrupt its internal state.
-
-- **onComment**: If a function is passed for this option, whenever a
-  comment is encountered the function will be called with the
-  following parameters:
-
-  - `block`: `true` if the comment is a block comment, false if it
-    is a line comment.
-  - `text`: The content of the comment.
-  - `start`: Character offset of the start of the comment.
-  - `end`: Character offset of the end of the comment.
-
-  When the `locations` options is on, the `{line, column}` locations
-  of the comment’s start and end are passed as two additional
-  parameters.
-
-  If array is passed for this option, each found comment is pushed
-  to it as object in Esprima format:
-
-  ```javascript
-  {
-    "type": "Line" | "Block",
-    "value": "comment text",
-    "start": Number,
-    "end": Number,
-    // If `locations` option is on:
-    "loc": {
-      "start": {line: Number, column: Number}
-      "end": {line: Number, column: Number}
-    },
-    // If `ranges` option is on:
-    "range": [Number, Number]
-  }
-  ```
-
-  Note that you are not allowed to call the parser from the
-  callback—that will corrupt its internal state.
-
-- **ranges**: Nodes have their start and end characters offsets
-  recorded in `start` and `end` properties (directly on the node,
-  rather than the `loc` object, which holds line/column data. To also
-  add a
-  [semi-standardized](https://bugzilla.mozilla.org/show_bug.cgi?id=745678)
-  `range` property holding a `[start, end]` array with the same
-  numbers, set the `ranges` option to `true`.
-
-- **program**: It is possible to parse multiple files into a single
-  AST by passing the tree produced by parsing the first file as the
-  `program` option in subsequent parses. This will add the toplevel
-  forms of the parsed file to the "Program" (top) node of an existing
-  parse tree.
-
-- **sourceFile**: When the `locations` option is `true`, you can pass
-  this option to add a `source` attribute in every node’s `loc`
-  object. Note that the contents of this option are not examined or
-  processed in any way; you are free to use whatever format you
-  choose.
-
-- **directSourceFile**: Like `sourceFile`, but a `sourceFile` property
-  will be added (regardless of the `location` option) directly to the
-  nodes, rather than the `loc` object.
-
-- **preserveParens**: If this option is `true`, parenthesized expressions
-  are represented by (non-standard) `ParenthesizedExpression` nodes
-  that have a single `expression` property containing the expression
-  inside parentheses.
-
-**parseExpressionAt**`(input, offset, options)` will parse a single
-expression in a string, and return its AST. It will not complain if
-there is more of the string left after the expression.
-
-**tokenizer**`(input, options)` returns an object with a `getToken`
-method that can be called repeatedly to get the next token, a `{start,
-end, type, value}` object (with added `loc` property when the
-`locations` option is enabled and `range` property when the `ranges`
-option is enabled). When the token's type is `tokTypes.eof`, you
-should stop calling the method, since it will keep returning that same
-token forever.
-
-Note that tokenizing JavaScript without parsing it is, in modern
-versions of the language, not really possible due to the way syntax is
-overloaded in ways that can only be disambiguated by the parse
-context. This package applies a bunch of heuristics to try and do a
-reasonable job, but you are advised to use `parse` with the `onToken`
-option instead of this.
-
-In ES6 environment, returned result can be used as any other
-protocol-compliant iterable:
-
-```javascript
-for (let token of acorn.tokenizer(str)) {
-  // iterate over the tokens
-}
-
-// transform code to array of tokens:
-var tokens = [...acorn.tokenizer(str)]
-```
-
-**tokTypes** holds an object mapping names to the token type objects
-that end up in the `type` properties of tokens.
-
-**getLineInfo**`(input, offset)` can be used to get a `{line,
-column}` object for a given program string and offset.
-
-### The `Parser` class
-
-Instances of the **`Parser`** class contain all the state and logic
-that drives a parse. It has static methods `parse`,
-`parseExpressionAt`, and `tokenizer` that match the top-level
-functions by the same name.
-
-When extending the parser with plugins, you need to call these methods
-on the extended version of the class. To extend a parser with plugins,
-you can use its static `extend` method.
-
-```javascript
-var acorn = require("acorn")
-var jsx = require("acorn-jsx")
-var JSXParser = acorn.Parser.extend(jsx())
-JSXParser.parse("foo(<bar/>)", {ecmaVersion: 2020})
-```
-
-The `extend` method takes any number of plugin values, and returns a
-new `Parser` class that includes the extra parser logic provided by
-the plugins.
-
-## Command line interface
-
-The `bin/acorn` utility can be used to parse a file from the command
-line. It accepts as arguments its input file and the following
-options:
-
-- `--ecma3|--ecma5|--ecma6|--ecma7|--ecma8|--ecma9|--ecma10`: Sets the ECMAScript version
-  to parse. Default is version 9.
-
-- `--module`: Sets the parsing mode to `"module"`. Is set to `"script"` otherwise.
-
-- `--locations`: Attaches a "loc" object to each node with "start" and
-  "end" subobjects, each of which contains the one-based line and
-  zero-based column numbers in `{line, column}` form.
-
-- `--allow-hash-bang`: If the code starts with the characters #! (as
-  in a shellscript), the first line will be treated as a comment.
-
-- `--allow-await-outside-function`: Allows top-level `await` expressions.
-  See the `allowAwaitOutsideFunction` option for more information.
-
-- `--compact`: No whitespace is used in the AST output.
-
-- `--silent`: Do not output the AST, just return the exit status.
-
-- `--help`: Print the usage information and quit.
-
-The utility spits out the syntax tree as JSON data.
-
-## Existing plugins
-
- - [`acorn-jsx`](https://github.com/RReverser/acorn-jsx): Parse [Facebook JSX syntax extensions](https://github.com/facebook/jsx)
+如有问题，请查看浏览器控制台日志或联系开发者。

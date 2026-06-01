@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>净网守护图标生成器</title>
+</head>
+<body>
+  <h1>净网守护图标生成器</h1>
+  <p>右键点击下方图标，选择"图片另存为"，保存为 icon16.png、icon48.png、icon128.png</p>
+  
+  <svg id="icon16" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <rect width="16" height="16" rx="3" fill="#00D4FF"/>
+    <text x="8" y="12" text-anchor="middle" font-size="10" fill="white" font-family="Arial">🛡️</text>
+  </svg>
+  
+  <br><br>
+  
+  <svg id="icon48" width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+    <rect width="48" height="48" rx="9" fill="#00D4FF"/>
+    <text x="24" y="32" text-anchor="middle" font-size="28" fill="white" font-family="Arial">🛡️</text>
+  </svg>
+  
+  <br><br>
+  
+  <svg id="icon128" width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+    <rect width="128" height="128" rx="24" fill="#00D4FF"/>
+    <text x="64" y="85" text-anchor="middle" font-size="72" fill="white" font-family="Arial">🛡️</text>
+  </svg>
+  
+  <script>
+    // 将 SVG 转换为 PNG 的脚本
+    function downloadAsPNG(svgId, filename) {
+      const svg = document.getElementById(svgId);
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      canvas.width = svg.getAttribute('width');
+      canvas.height = svg.getAttribute('height');
+      
+      img.onload = function() {
+        ctx.drawImage(img, 0, 0);
+        const pngFile = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = pngFile;
+        link.click();
+      };
+      
+      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    }
+    
+    // 自动下载图标
+    setTimeout(() => {
+      downloadAsPNG('icon16', 'icon16.png');
+      setTimeout(() => downloadAsPNG('icon48', 'icon48.png'), 500);
+      setTimeout(() => downloadAsPNG('icon128', 'icon128.png'), 1000);
+    }, 1000);
+  </script>
+</body>
+</html>

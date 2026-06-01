@@ -1,0 +1,112 @@
+/* 净网守护 - 抖音评论过滤样式 */
+
+/* 违规评论标记 */
+.jingwang-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 6px;
+  font-size: 12px;
+  color: #FF4D6D;
+  background: rgba(255, 77, 109, 0.1);
+  border: 1px solid rgba(255, 77, 109, 0.3);
+  border-radius: 4px;
+  animation: jingwang-fade-in 0.3s ease-in-out;
+}
+
+@keyframes jingwang-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 违规评论高亮 */
+.jingwang-violation {
+  background-color: rgba(255, 77, 109, 0.1) !important;
+  border: 1px solid rgba(255, 77, 109, 0.3) !important;
+  border-radius: 4px !important;
+  padding: 4px 8px !important;
+}
+
+/* 浮动状态面板 */
+.jingwang-status-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 200px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 999999;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.jingwang-status-panel h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #00D4FF;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jingwang-status-panel h3::before {
+  content: '🛡️';
+  font-size: 16px;
+}
+
+.jingwang-stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.jingwang-stat-value {
+  font-weight: 600;
+  color: #fff;
+}
+
+.jingwang-stat-value.blocked {
+  color: #FF4D6D;
+}
+
+.jingwang-stat-value.approved {
+  color: #4CAF50;
+}
+
+.jingwang-stat-value.pending {
+  color: #ff9800;
+}
+
+/* 折叠按钮 */
+.jingwang-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(0, 212, 255, 0.2);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  transition: all 0.3s ease;
+  z-index: 999999;
+}
+
+.jingwang-toggle:hover {
+  background: rgba(0, 212, 255, 0.3);
+  transform: scale(1.1);
+}

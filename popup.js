@@ -1,56 +1,85 @@
-// 刷新统计信息
-const refreshStats = () => {
-  // 检查后端服务状态
-  fetch('http://localhost:3000/api/moderation/check', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      content: '测试',
-      contentType: 'text'
-    })
-  })
-  .then(response => {
-    console.log('响应状态:', response.status);
+// 净网守护 - Popup 脚本
+console.log('=== 净网守护 Popup 已加载 ===');
+
+// 检查后端服务状态
+async function checkBackendStatus() {
+  try {
+    const response = await fetch('http://localhost:3000/api/moderation/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ content: 'test', contentType: 'text' })
+    });
+    
     if (response.ok) {
-      document.getElementById('statusIndicator').className = 'status-indicator status-online';
-      document.getElementById('statusText').textContent = '后端服务在线';
-      return response.json();
+      updateStatus(true);
     } else {
-      throw new Error('服务响应失败: ' + response.status);
+      updateStatus(false);
     }
-  })
-  .then(data => {
-    console.log('API响应数据:', data);
-  })
-  .catch(error => {
-    console.error('连接后端服务失败:', error);
-    document.getElementById('statusIndicator').className = 'status-indicator status-offline';
-    document.getElementById('statusText').textContent = '后端服务离线';
-  });
+  } catch (error) {
+    console.error('后端服务不可达:', error);
+    updateStatus(false);
+  }
+}
+
+// 更新状态显示
+function updateStatus(isOnline) {
+  const indicator = document.getElementById('statusIndicator');
+  const text = document.getElementById('statusText');
   
-  // 获取统计信息
-  chrome.runtime.sendMessage({ type: 'GET_STATS' }, (response) => {
-    console.log('获取统计信息响应:', response);
+  if (isOnline) {
+    indicator.className = 'status-indicator';
+    text.textContent = '后端服务在线';
+    text.style.color = '#94a3b8';
+  } else {
+    indicator.className = 'status-indicator offline';
+    text.textContent = '后端服务离线';
+    text.style.color = '#f44336';
+  }
+}
+
+// 更新统计数据
+async function updateStats() {
+  try {
+    const response = await new Promise((resolve) => {
+      chrome.runtime.sendMessage({ type: 'GET_STATS' }, (result) => {
+        resolve(result);
+      });
+    });
+    
     if (response && response.success && response.data) {
-      document.getElementById('totalCount').textContent = response.data.total || 0;
-      document.getElementById('blockedCount').textContent = response.data.blocked || 0;
-      document.getElementById('approvedCount').textContent = response.data.approved || 0;
-      document.getElementById('pendingCount').textContent = response.data.pending || 0;
-    } else {
-      console.log('获取统计信息失败或数据为空');
+      const stats = response.data;
+      document.getElementById('totalCount').textContent = stats.total || 0;
+      document.getElementById('blockedCount').textContent = stats.blocked || 0;
+      document.getElementById('approvedCount').textContent = stats.approved || 0;
+      document.getElementById('pendingCount').textContent = stats.pending || 0;
+    }
+  } catch (error) {
+    console.error('获取统计数据失败:', error);
+  }
+}
+
+// 重置统计数据
+function resetStats() {
+  chrome.runtime.sendMessage({ type: 'RESET_STATS' }, (response) => {
+    if (response && response.success) {
+      updateStats();
     }
   });
-};
+}
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
-  refreshStats();
+  console.log('Popup 初始化...');
   
-  // 绑定刷新按钮事件
-  document.getElementById('refreshBtn').addEventListener('click', refreshStats);
+  // 检查后端状态
+  checkBackendStatus();
   
-  // 每5秒自动刷新
-  setInterval(refreshStats, 5000);
+  // 更新统计数据
+  updateStats();
+  
+  // 绑定重置按钮事件
+  document.getElementById('resetBtn').addEventListener('click', resetStats);
+  
+  // 每 3 秒刷新一次统计数据
+  setInterval(updateStats, 3000);
 });
