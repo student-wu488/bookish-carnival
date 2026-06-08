@@ -40,31 +40,108 @@ function updateStatus(isOnline) {
 // 更新统计数据
 async function updateStats() {
   try {
-    const response = await new Promise((resolve) => {
-      chrome.runtime.sendMessage({ type: 'GET_STATS' }, (result) => {
-        resolve(result);
-      });
-    });
+    console.log('[Popup] 开始获取统计数据...');
     
-    if (response && response.success && response.data) {
-      const stats = response.data;
-      document.getElementById('totalCount').textContent = stats.total || 0;
-      document.getElementById('blockedCount').textContent = stats.blocked || 0;
-      document.getElementById('approvedCount').textContent = stats.approved || 0;
-      document.getElementById('pendingCount').textContent = stats.pending || 0;
+    // 尝试从页面获取统计数据
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    
+    console.log('[Popup] 找到标签页:', tabs.length);
+    
+    if (tabs.length > 0) {
+      const tab = tabs[0];
+      console.log('[Popup] 当前标签页:', tab.url);
+      
+      // 检查是否是抖音页面
+      if (!tab.url.includes('douyin.com')) {
+        console.log('[Popup] 非抖音页面，跳过');
+        document.getElementById('totalCount').textContent = '-';
+        document.getElementById('blockedCount').textContent = '-';
+        document.getElementById('approvedCount').textContent = '-';
+        document.getElementById('pendingCount').textContent = '-';
+        return;
+      }
+      
+      try {
+        const result = await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          function: () => {
+            // 从页面的 window.jingwang 对象获取统计数据
+            console.log('[Content] popup请求统计数据');
+            
+            if (window.jingwang && typeof window.jingwang.getStats === 'function') {
+              return window.jingwang.getStats();
+            }
+            
+            // 如果 jingwang 不存在，尝试其他方法
+            if (window.getFilterStats) {
+              const stats = window.getFilterStats();
+              return {
+                total: stats.total,
+                blocked: stats.filtered,
+                approved: stats.passed,
+                pending: stats.pending
+              };
+            }
+            
+            console.log('[Content] 未找到统计数据接口');
+            return null;
+          }
+        });
+        
+        console.log('[Popup] 执行结果:', result);
+        
+        if (result && result[0] && result[0].result) {
+          const stats = result[0].result;
+          console.log('[Popup] 获取到统计数据:', stats);
+          
+          document.getElementById('totalCount').textContent = stats.total || 0;
+          document.getElementById('blockedCount').textContent = stats.blocked || 0;
+          document.getElementById('approvedCount').textContent = stats.approved || 0;
+          document.getElementById('pendingCount').textContent = stats.pending || 0;
+          return;
+        } else {
+          console.log('[Popup] 未获取到数据');
+        }
+      } catch (scriptError) {
+        console.error('[Popup] 脚本执行失败:', scriptError);
+      }
     }
+    
+    // 如果无法从页面获取，显示默认值
+    document.getElementById('totalCount').textContent = 0;
+    document.getElementById('blockedCount').textContent = 0;
+    document.getElementById('approvedCount').textContent = 0;
+    document.getElementById('pendingCount').textContent = 0;
+    
   } catch (error) {
-    console.error('获取统计数据失败:', error);
+    console.error('[Popup] 获取统计数据失败:', error);
+    document.getElementById('totalCount').textContent = 0;
+    document.getElementById('blockedCount').textContent = 0;
+    document.getElementById('approvedCount').textContent = 0;
+    document.getElementById('pendingCount').textContent = 0;
   }
 }
 
 // 重置统计数据
-function resetStats() {
-  chrome.runtime.sendMessage({ type: 'RESET_STATS' }, (response) => {
-    if (response && response.success) {
-      updateStats();
+async function resetStats() {
+  try {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    
+    if (tabs.length > 0) {
+      await chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        function: () => {
+          if (window.jingwang && typeof window.jingwang.resetStats === 'function') {
+            window.jingwang.resetStats();
+          }
+        }
+      });
     }
-  });
+    
+    updateStats();
+  } catch (error) {
+    console.error('重置统计数据失败:', error);
+  }
 }
 
 // 初始化
